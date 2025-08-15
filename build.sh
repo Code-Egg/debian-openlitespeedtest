@@ -47,11 +47,7 @@ fi
 if [ -z "${version}" ]; then
     version="$(grep ${product}= VERSION.txt | awk -F '=' '{print $2}')"
 fi
-if [ "${product}" == 'lsphp' ]; then
-    product="${product}"${PHP_V}
-else
-    product=lsphp${PHP_V}-"${product}"
-fi
+
 if [ $dists = "all" ]; then
     dists="noble jammy focal bookworm bullseye buster"
     echo "The new value for dists is $dists"
