@@ -2,7 +2,7 @@
 target_server='repo-dev.litespeedtech.com'
 prod_server='rpms.litespeedtech.com'
 EPACE='        '
-PHP_V=84
+#PHP_V=84
 product=$1
 dists=$2
 input_archs=$3
@@ -25,18 +25,18 @@ echow(){
 show_help()
 {
     echo -e "\033[1mExamples\033[0m"
-    echo "${EPACE} ./build.sh [apcu|igbinary|imagick|...|memcached] [noble|bookworm|...|buster] [amd64|arm64]"
-    echo "${EPACE} ./build.sh ioncube bookworm amd64"    
+    echo "${EPACE} ./build.sh [openlitespeed] [noble|bookworm|...|buster] [amd64|arm64]"
+    echo "${EPACE} ./build.sh openlitespeed bookworm amd64"    
     echo -e "\033[1mOPTIONS\033[0m"
     echow '--version [NUMBER]'
     echo "${EPACE}${EPACE}Specify package version number"    
-    echo "${EPACE}${EPACE}Example:./build.sh apcu noble amd64 --version 5.1.24"
+    echo "${EPACE}${EPACE}Example:./build.sh openlitespeed noble amd64 --version 1.8.4"
     echow '--revision [NUMBER]'
     echo "${EPACE}${EPACE}Specify package revision number"    
-    echo "${EPACE}${EPACE}Example:./build.sh apcu noble amd64 --version 5.1.24 --revision 5"
+    echo "${EPACE}${EPACE}Example:./build.sh openlitespeed noble amd64 --version 1.8.4 --revision 5"
     echow '--push-flag'
     echo "${EPACE}${EPACE}push packages to dev server."    
-    echo "${EPACE}${EPACE}Example:./build.sh apcu noble amd64 --push-flag"
+    echo "${EPACE}${EPACE}Example:./build.sh openlitespeed noble amd64 --push-flag"
     echow '-H, --help'
     echo "${EPACE}${EPACE}Display help and exit."
     exit 0

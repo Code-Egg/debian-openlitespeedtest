@@ -63,117 +63,19 @@ set_build_dir(){
 prepare_source(){
     cd $BUILD_DIR
     case "$product" in
-    lsphp84)
-        source_url="http://us2.php.net/distributions/php-$version.tar.gz"
-        wget $source_url
-        tar xzf php-$version.tar.gz
-
-        source_folder_name=php8.4-$version
-        mv php-$version $source_folder_name
-
-        SOURCE_DIR=$BUILD_DIR/$source_folder_name
-        source_url=https://www.litespeedtech.com/packages/lsapi/php-litespeed-${lsapi_version}.tgz
-        wget ${source_url}
-        tar -xzf php-litespeed-${lsapi_version}.tgz
-        cp -af litespeed-${lsapi_version}/*.c litespeed-${lsapi_version}/*.h  ${SOURCE_DIR}/sapi/litespeed/
-
-        # add patches folder to the source
-        cp -a ${PRODUCT_DIR}/patches ${SOURCE_DIR}/
-        ls -la $SOURCE_DIR/patches
-
-        # apply patches only once and then remove patches folder
-        cd $SOURCE_DIR
-        echo `pwd`
-        echo "now applying the patches"
-        quilt push -a --trace
-        rm -rf patches .pc
-
-        cd ..
-        #prepare the patched source as orig.tar.xz file
-        tar -cJf php8.4_${version}.orig.tar.xz ${source_folder_name}
-        ;;
-    lsphp${PHP_VERSION_NUMBER}-${PHP_EXTENSION})
-        if [ ${PHP_EXTENSION} == 'ioncube' ] ; then
-            #source_url='https://downloads.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64.tar.gz'
-            if [[ ${archs} == 'arm64' ]] ; then
-                source_url="http://downloads2.ioncube.com/loader_downloads/ioncube_loaders_lin_aarch64_${version}.tar.gz"
-            else
-                source_url="http://downloads2.ioncube.com/loader_downloads/ioncube_loaders_lin_x86-64_${version}.tar.gz"
-            fi
-            wget ${source_url}
-            tar -xzf ioncube_loaders_lin_*_${version}.tar.gz
-            source_folder_name="ioncube"
-        elif [ ${PHP_EXTENSION} == 'pear' ] ; then
-            source_url="http://download.pear.php.net/package/PEAR-${version}.tgz"
-            wget --quiet ${source_url}
-            tar -xzf "PEAR-${version}.tgz"
-            mv package.xml "PEAR-${version}/package2.xml"
-            rm -f package.sig
-            mkdir -p "PEAR-${version}/submodules"
-
-            XML_UTIL_VER='1.4.5'
-            STRUCTURES_GRAPH_VER='1.1.1'
-            CONSOLE_GETOPT_VER='1.4.3'
-            ARCHIVE_TAR_VER='1.4.14'
-            PEAR_MANPAGES_VER='1.10.0'
-            SUB_MODULES=('XML_Util' 'Structures_Graph' 'Console_Getopt' 'Archive_Tar' 'PEAR_Manpages')
-            for SUB_MODULE in ${SUB_MODULES[@]}; do
-                if [[ ${SUB_MODULE} == 'XML_Util' ]]; then
-                    PEAR_SUB_VERSION="${XML_UTIL_VER}"
-                elif [[ ${SUB_MODULE} == 'Structures_Graph' ]]; then
-                    PEAR_SUB_VERSION="${STRUCTURES_GRAPH_VER}"
-                elif [[ ${SUB_MODULE} == 'Console_Getopt' ]]; then
-                    PEAR_SUB_VERSION="${CONSOLE_GETOPT_VER}"
-                elif [[ ${SUB_MODULE} == 'Archive_Tar' ]]; then
-                    PEAR_SUB_VERSION="${ARCHIVE_TAR_VER}"
-                elif [[ ${SUB_MODULE} == 'PEAR_Manpages' ]]; then
-                    PEAR_SUB_VERSION="${PEAR_MANPAGES_VER}"
-                fi
-                wget --quiet http://download.pear.php.net/package/${SUB_MODULE}-${PEAR_SUB_VERSION}.tgz
-                tar -xf "${SUB_MODULE}-${PEAR_SUB_VERSION}.tgz"
-                if [[ ${SUB_MODULE} == 'PEAR_Manpages' ]]; then
-                    mv "${SUB_MODULE}-${PEAR_SUB_VERSION}/man5" "PEAR-${version}/"
-                    mv "${SUB_MODULE}-${PEAR_SUB_VERSION}/man1" "PEAR-${version}/"
-                    mv package.xml "PEAR-${version}/package-manpages.xml"
-                    rm -rf "${SUB_MODULE}-${PEAR_SUB_VERSION}"
-                else
-                    mv "${SUB_MODULE}-${PEAR_SUB_VERSION}/" "PEAR-${version}/submodules/${SUB_MODULE}/"
-                    mv package.xml "PEAR-${version}/submodules/${SUB_MODULE}/"
-                fi
-                if [[ -f package.sig ]]; then
-                    rm package.sig
-                fi
-                rm -f "${SUB_MODULE}-${PEAR_SUB_VERSION}.tgz"
-            done
-            cp "PEAR-${version}/package2.xml" package2.xml
-            cp "PEAR-${version}/package2.xml" package.xml
-            source_folder_name="PEAR-${version}"
-        elif [ ${PHP_EXTENSION} == 'imagick-git' ] ; then
-            source_url="https://github.com/Imagick/imagick/archive/refs/heads/master.tar.gz"
-            wget ${source_url}
-            tar -xzf "master.tar.gz"
-            mv imagick-master "${PHP_EXTENSION}-${version}"
-            source_folder_name="${PHP_EXTENSION}-${version}"
-        elif [ ${PHP_EXTENSION} == 'memcached-git' ] ; then
-            source_url="https://github.com/php-memcached-dev/php-memcached/archive/refs/heads/master.tar.gz"
-            wget --no-check-certificate ${source_url}
-            tar -xzf "master.tar.gz"
-            mv php-memcached-master "${PHP_EXTENSION}-${version}"
-            source_folder_name="${PHP_EXTENSION}-${version}"
-        elif [ ${PHP_EXTENSION} == 'msgpack' ] ; then
-            source_url="https://pecl.php.net/get/${PHP_EXTENSION}-${version}.tgz"
-            wget ${source_url}
-            tar -xzf "${PHP_EXTENSION}-${version}.tgz"
-            source_folder_name="${PHP_EXTENSION}-${version}"
-        else
-            source_url="https://pecl.php.net/get/${PHP_EXTENSION}-${version}.tgz"
-            wget ${source_url}
-            tar -xzf "${PHP_EXTENSION}-${version}.tgz"
-            source_folder_name="${PHP_EXTENSION}-${version}"
+    openlitespeed)
+        if [[ ${archs} == 'arm64' ]] ; then
+            source_url="https://openlitespeed.org/packages/openlitespeed-${version}-aarch64-linux.tgz"
+            wget -qO ./$product-$version-aarch64-linux.tgz $source_url
+            tar xzf $product-$version-aarch64-linux.tgz
+        else 
+            source_url="https://openlitespeed.org/packages/openlitespeed-${version}-x86_64-linux.tgz"
+            wget -qO ./$product-$version.tgz $source_url
+            tar xzf $product-$version.tgz
         fi
-            SOURCE_DIR="${BUILD_DIR}/${source_folder_name}"
-            tar -cJf ${product}_${version}.orig.tar.xz ${source_folder_name}
-        ;;    
+        source_folder_name=`ls -d */ | grep $product`
+        SOURCE_DIR=$BUILD_DIR/$source_folder_name
+    ;;  
     *)
         echo "Currently this product is not supported"
         ;;
@@ -186,37 +88,38 @@ pbuild_packages(){
     cd $SOURCE_DIR
     for arch in `echo $archs`; do
         for dist in `echo $dists`; do
-          TAIL_EDGE=''
-          if [ -d ${SOURCE_DIR}/debian ] ; then
-              rm -rf ${SOURCE_DIR}/debian
-          fi
-          # Autoswitch the php info for php extensions before compiling
-          if [[ "${product}" =~ 'lsphp' ]] && [[ "${PHP_EXTENSION}" != '' ]]; then
-              PHP_VERSION_DOT="${PHP_VERSION_NUMBER:0:1}.${PHP_VERSION_NUMBER:1:1}"         
-              if [[ "${PHP_VERSION_NUMBER}" == '74' ]]; then
-                  PHP_VERSION_DATE='20190902'
-              elif [[ "${PHP_VERSION_NUMBER}" == '80' ]]; then
-                  PHP_VERSION_DATE='20200930'
-              elif [[ "${PHP_VERSION_NUMBER}" == '81' ]]; then
-                  PHP_VERSION_DATE='20210902'
-              elif [[ "${PHP_VERSION_NUMBER}" == '82' ]]; then
-                  PHP_VERSION_DATE='20220829'
-              elif [[ "${PHP_VERSION_NUMBER}" == '83' ]]; then
-                  PHP_VERSION_DATE='20230831'                  
-              elif [[ "${PHP_VERSION_NUMBER}" == '84' ]]; then
-                  PHP_VERSION_DATE='20240924'                  
-              fi
-          fi          
-          cp -a ${PRODUCT_DIR}${TAIL_EDGE}/debian $SOURCE_DIR/
-          echo " copy changelog template to debian folder "
-          cp -af ${PRODUCT_DIR}${TAIL_EDGE}/debian/changelog $SOURCE_DIR/debian/changelog
-          echo " now substitute variables in changelog "
-          sed -i -e "s/#VERSION#/${version}/g" $SOURCE_DIR/debian/changelog
-          sed -i -e "s/#BUILD_REVISION#/${revision}/g" $SOURCE_DIR/debian/changelog
-          sed -i -e "s/#DIST#/${dist}/g" $SOURCE_DIR/debian/changelog
-          sed -i -e "s/#DATE#/`date +"%a, %d %b %Y %T"`/g" $SOURCE_DIR/debian/changelog
-          sed -i -e "s/#PHP_VERSION#/${PHP_VERSION_NUMBER}/g" $SOURCE_DIR/debian/changelog
-          echo " changelog preparation done "
+            TAIL_EDGE=''
+            if [ -d ${SOURCE_DIR}/debian ] ; then
+                rm -rf ${SOURCE_DIR}/debian
+            fi
+            
+            cp -a ${PRODUCT_DIR}${TAIL_EDGE}/debian $SOURCE_DIR/
+            echo " copy changelog template to debian folder "
+            cp -af ${PRODUCT_DIR}${TAIL_EDGE}/debian/changelog $SOURCE_DIR/debian/changelog
+            echo " now substitute variables in changelog "
+            sed -i -e "s/#VERSION#/${version}/g" $SOURCE_DIR/debian/changelog
+            sed -i -e "s/#BUILD_REVISION#/${revision}/g" $SOURCE_DIR/debian/changelog
+            sed -i -e "s/#DIST#/${dist}/g" $SOURCE_DIR/debian/changelog
+            sed -i -e "s/#DATE#/`date +"%a, %d %b %Y %T"`/g" $SOURCE_DIR/debian/changelog
+            sed -i -e "s/#PHP_VERSION#/${PHP_VERSION_NUMBER}/g" $SOURCE_DIR/debian/changelog
+            echo " changelog preparation done "
+
+        if [ "${product}" = 'openlitespeed' ] ; then
+            cd $SOURCE_DIR/..
+            #cp -a -f $PRODUCT_DIR/ps-makefile/Makefile-$version-amd64 $SOURCE_DIR/src/modules/pagespeed/Makefile
+            rm -f openlitespeed_${version}.orig.tar.xz >/dev/null 2>&1
+            tar -cJf openlitespeed_${version}.orig.tar.xz --exclude='debian' ${source_folder_name}
+            echo " source orig file generated : openlitespeed_${version}.orig.tar.xz "
+            cd $SOURCE_DIR
+
+            # need to change the version dependency to ols for pagespeed
+            sed -i -e "s/#VERSION#/${version}/g" $SOURCE_DIR/debian/control
+            sed -i -e "s/#BUILD#/${revision}/g" $SOURCE_DIR/debian/control
+            sed -i -e "s/#DIST#/${dist}/g" $SOURCE_DIR/debian/control
+
+            # need to change version inside of rules
+            sed -i -e "s/%%VERSION%%/${version}/g" $SOURCE_DIR/debian/rules
+        fi
 
           export DISTRO_TEST=${distro}
           DIST=${dist} ARCH=${arch} pbuilder --update
