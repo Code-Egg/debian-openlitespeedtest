@@ -14,22 +14,8 @@ check_input(){
 }
 
 set_paras(){
-    PHP_EXTENSION=$(echo "${product}" | sed 's/^[^-]*-//g')
-    if [[ "${PHP_EXTENSION}" =~ 'lsphp' ]]; then
-        PHP_EXTENSION=''
-    fi
-    PHP_VERSION_NUMBER=$(echo "${product}" | sed 's/[^0-9]*//g')
-    if [[ "$product" =~ 'lsphp' ]] && [[ "${PHP_EXTENSION}" != '' ]] && ! [[ "${PHP_EXTENSION}" =~ 'lsphp' ]] ; then
-        if [[ "${PHP_VERSION_NUMBER}" -lt '74' ]]; then
-            echo "PHP extensions are just for 7.4+"
-            exit 1
-        fi
-        PRODUCT_DIR=${cur_path}/build/"${PHP_EXTENSION}"
-        BUILD_DIR=$PRODUCT_DIR/"lsphp${PHP_VERSION_NUMBER}-$version-$revision"
-    else
-        PRODUCT_DIR=${cur_path}/build/$product
-        BUILD_DIR=$PRODUCT_DIR/"$version-$revision"
-    fi
+    PRODUCT_DIR=${cur_path}/build/$product
+    BUILD_DIR=$PRODUCT_DIR/"$version-$revision"
     BUILD_RESULT_DIR=$BUILD_DIR/build-result
 }
 
